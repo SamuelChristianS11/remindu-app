@@ -23,8 +23,8 @@ class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     mk = db.Column(db.String(100), nullable=False)
     deadline = db.Column(db.String(50), nullable=False)
-    sks = db.Column(db.Float, nullable=False)
-    kesulitan = db.Column(db.Float, nullable=False)
+    kategori = db.Column(db.String(20), nullable=False)   # 'kuliah' atau 'personal'
+    kesulitan = db.Column(db.Float, nullable=False)       # 1=Mudah, 2=Sedang, 3=Sulit
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 @login_manager.user_loader
@@ -70,20 +70,33 @@ def logout():
 def index():
     return render_template('index.html', username=current_user.username)
 
+# API Endpoints
 @app.route('/api/tasks', methods=['GET'])
 @login_required
 def get_tasks():
     tasks = Task.query.filter_by(user_id=current_user.id).all()
-    return jsonify([{"id": t.id, "mk": t.mk, "deadline": t.deadline, "sks": t.sks, "kesulitan": t.kesulitan} for t in tasks])
+    return jsonify([{
+        "id": t.id, 
+        "mk": t.mk, 
+        "deadline": t.deadline, 
+        "kategori": t.kategori, 
+        "kesulitan": t.kesulitan
+    } for t in tasks])
 
 @app.route('/api/add_task', methods=['POST'])
 @login_required
 def add_task():
     data = request.json
-    new_task = Task(mk=data['mk'], deadline=data['deadline'], sks=data['sks'], kesulitan=data['kesulitan'], user_id=current_user.id)
+    new_task = Task(
+        mk=data.get('mk'), 
+        deadline=data.get('deadline'), 
+        kategori=data.get('kategori', 'kuliah'), 
+        kesulitan=float(data.get('kesulitan', 1.0)), 
+        user_id=current_user.id
+    )
     db.session.add(new_task)
     db.session.commit()
-    return jsonify({"success": True})
+    return jsonify({"success": True, "id": new_task.id})
 
 @app.route('/api/delete_task/<int:task_id>', methods=['DELETE'])
 @login_required
