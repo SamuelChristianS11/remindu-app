@@ -2,94 +2,178 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>REMINDU - Smart Task Prioritizer</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
-<body class="bg-light">
+<body>
+
 <div class="container py-4">
     
-    <div class="bg-white rounded-4 shadow-sm d-flex justify-content-between align-items-center mb-4 px-4 py-3">
-        <div>
-            <h3 class="fw-bold mb-0">REMINDU🔔</h3>
-            <small class="text-muted"><i class="fa-solid fa-heart-pulse text-danger"></i> Mental Health & Focus Guard</small>
+    <!-- NAVBAR & NAVIGASI LAYER -->
+    <div class="header-banner d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <h2 class="mb-0 fw-bold text-white">REMINDU <i class="fa-solid fa-bell text-warning"></i></h2>
+            
+            <div class="nav-pills-custom ms-3">
+                <button class="nav-btn active" id="btn-tab-dashboard" onclick="switchTab('dashboard')">
+                    <i class="fa-solid fa-house me-1"></i> Dashboard
+                </button>
+                <button class="nav-btn" id="btn-tab-calendar" onclick="switchTab('calendar')">
+                    <i class="fa-solid fa-calendar-days me-1"></i> Kalender
+                </button>
+            </div>
         </div>
-        <div class="d-flex align-items-center">
-            <button id="btn-music" onclick="toggleMusic()" class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1 fw-bold me-3">
+
+        <div class="d-flex align-items-center gap-3">
+            <button id="btn-music" onclick="toggleMusic()" class="btn btn-outline-info rounded-pill px-3 py-1 fw-bold">
                 <i class="fa-solid fa-music"></i> <span id="text-music">Musik: Off</span>
             </button>
-            <span class="me-3 fw-bold text-muted">Halo, <span class="text-primary text-uppercase">{{ username }}!</span></span>
-            <a href="/logout" class="btn btn-outline-danger btn-sm rounded-pill px-3 py-1 fw-bold">Keluar</a>
+            <span class="fw-bold text-muted">Halo, <span class="text-primary text-uppercase">{{ username }}!</span></span>
+            <a href="/logout" class="btn btn-danger btn-sm rounded-pill px-3 fw-bold">Keluar</a>
         </div>
     </div>
 
-    <!-- Banner Mental Health / Break Reminder Info -->
-    <div class="alert alert-info rounded-4 shadow-sm mb-4 d-flex justify-content-between align-items-center">
-        <div>
-            <i class="fa-solid fa-mug-hot me-2"></i>
-            <span>Status Istirahat: <strong id="timer-text">Sesi Belajar Dimulai (Saran istirahat tiap 25 menit)</strong></span>
+    <!-- LAYER 1: DASHBOARD UTAMA -->
+    <div id="layer-dashboard">
+        <!-- BANNER STATUS FOKUS -->
+        <div class="alert alert-info rounded-4 shadow-sm mb-4 d-flex justify-content-between align-items-center" style="background-color: var(--bg-card); border-left: 5px solid #ffa502; color: var(--text-main);">
+            <div>
+                <i class="fa-solid fa-mug-hot text-warning me-2"></i>
+                <span>Status Fokus: <strong id="timer-text" class="text-warning">Siap Belajar? Klik 'Mulai Kerjakan' pada tugas untuk menghitung 30 menit fokus!</strong></span>
+            </div>
+            <button onclick="picuPengingatIstirahat()" class="btn btn-sm btn-warning rounded-pill fw-bold text-dark">Istirahat Sekarang</button>
         </div>
-        <button onclick="picuPengingatIstirahat()" class="btn btn-sm btn-outline-info rounded-pill fw-bold">Istirahat Sekarang</button>
+
+        <div class="row g-4 mb-4">
+            <!-- FORM INPUT TUGAS -->
+            <div class="col-lg-8">
+                <div class="card p-4 h-100">
+                    <h5 class="fw-bold mb-3 text-white"><i class="fa-solid fa-plus-circle text-primary me-2"></i>Tambah Agenda Baru</h5>
+                    <form onsubmit="tambahTugas(event)" class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small">Nama Agenda</label>
+                            <input type="text" id="input-title" class="form-control" placeholder="Mata Kuliah / Nama Tugas" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Kategori</label>
+                            <select id="input-category" class="form-select" required>
+                                <option value="kuliah">Tugas Kuliah</option>
+                                <option value="personal">Jadwal Personal</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Tingkat Kesulitan</label>
+                            <select id="input-kesulitan" class="form-select" required>
+                                <option value="1">Mudah</option>
+                                <option value="2">Sedang</option>
+                                <option value="3">Sulit</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Deadline Waktu</label>
+                            <input type="datetime-local" id="input-date" class="form-control" required>
+                        </div>
+                        <div class="col-12 mt-4 text-end">
+                            <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill fw-bold">Simpan Agenda</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- PANEL STATISTIK -->
+            <div class="col-lg-4">
+                <div class="card p-4 h-100 d-flex flex-column justify-content-center">
+                    <h5 class="fw-bold mb-4 text-center text-white"><i class="fa-solid fa-chart-pie text-primary me-2"></i>Statistik Anda</h5>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-3 p-3 rounded" style="background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color);">
+                        <span class="text-stat-label"><i class="fa-solid fa-layer-group text-primary me-2"></i>Total Agenda</span>
+                        <h3 class="mb-0 fw-bold text-primary" id="stat-total">0</h3>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3 p-3 rounded" style="background: rgba(255, 71, 87, 0.1); border: 1px solid rgba(255, 71, 87, 0.2);">
+                        <span class="text-stat-label"><i class="fa-solid fa-graduation-cap text-danger me-2"></i>Tugas Kuliah</span>
+                        <h3 class="mb-0 fw-bold text-danger" id="stat-kuliah">0</h3>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3 p-3 rounded" style="background: rgba(30, 144, 255, 0.1); border: 1px solid rgba(30, 144, 255, 0.2);">
+                        <span class="text-stat-label"><i class="fa-solid fa-user-clock text-info me-2"></i>Jadwal Personal</span>
+                        <h3 class="mb-0 fw-bold text-info" id="stat-personal">0</h3>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center p-3 rounded" style="background: rgba(255, 165, 2, 0.1); border: 1px solid rgba(255, 165, 2, 0.2);">
+                        <span class="text-stat-label"><i class="fa-solid fa-triangle-exclamation text-warning me-2"></i>Mendesak (≤ 3 Hari)</span>
+                        <h3 class="mb-0 fw-bold text-warning" id="stat-urgent">0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DAFTAR PRIORITAS -->
+        <div class="card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold mb-0 text-white"><i class="fa-solid fa-list-check text-primary me-2"></i>Daftar Prioritas Agenda</h5>
+                <button onclick="hapusSemua()" class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold">Hapus Semua</button>
+            </div>
+            <div id="task-container" class="d-flex flex-column gap-3">
+                <p style="color: var(--text-muted); text-align: center; padding: 20px;">Memuat data agenda...</p>
+            </div>
+        </div>
     </div>
 
-    <div class="bg-white rounded-4 shadow-sm p-4 mb-4">
-        <form onsubmit="tambahTugas(event)" class="row g-3">
-            <div class="col-md-3">
-                <input type="text" id="mk" class="form-control" placeholder="Mata Kuliah / Tugas" required>
+    <!-- LAYER 2: KALENDER TERPISAH -->
+    <div id="layer-calendar" style="display: none;">
+        <div class="card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <div>
+                    <h4 class="fw-bold mb-1 text-white">
+                        <span style="color:#ff2a85;">●</span> Kalender Jadwal Saya
+                    </h4>
+                    <p class="text-muted small mb-0">Jadwal acara, tenggat tugas, dan agenda personal harian</p>
+                </div>
+
+                <div class="d-flex align-items-center gap-3 bg-dark-subtle px-3 py-2 rounded-3 border border-secondary border-opacity-25">
+                    <button class="btn btn-sm btn-outline-light border-0" onclick="changeMonth(-1)">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <span id="calendar-month-year" class="fw-bold text-white fs-6 px-2">November 2026</span>
+                    <button class="btn btn-sm btn-outline-light border-0" onclick="changeMonth(1)">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
             </div>
-            <div class="col-md-3">
-                <input type="datetime-local" id="dl" class="form-control" required>
+
+            <div class="calendar-header">
+                <div>MINGGU</div>
+                <div>SENIN</div>
+                <div>SELASA</div>
+                <div>RABU</div>
+                <div>KAMIS</div>
+                <div>JUMAT</div>
+                <div>SABTU</div>
             </div>
-            <div class="col-md-2">
-                <input type="number" id="sks" class="form-control" placeholder="SKS/Bobot" min="1" max="6" required>
+
+            <div class="calendar-grid" id="calendar-grid">
+                <!-- Rendered real-time oleh JS -->
             </div>
-            <div class="col-md-2">
-                <select id="kesulitan" class="form-select" required>
-                    <option value="" disabled selected>Kesulitan</option>
-                    <option value="1">Mudah</option>
-                    <option value="2">Sedang</option>
-                    <option value="3">Sulit</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100 fw-bold">Tambah</button>
-            </div>
-        </form>
+        </div>
     </div>
 
-    <div class="bg-white rounded-4 shadow-sm p-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="fw-bold mb-0">Daftar Prioritas</h5>
-            <button onclick="hapusSemua()" class="btn btn-danger btn-sm rounded-pill px-3 fw-bold">Hapus Semua</button>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Tugas</th>
-                        <th>Deadline</th>
-                        <th>Status Waktu</th>
-                        <th class="text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody id="tabelBody"></tbody>
-            </table>
-        </div>
-    </div>
 </div>
 
-<!-- Modal Pop-up Mental Health & Break -->
+<!-- MODAL REHAT -->
 <div class="modal fade" id="breakModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content text-center p-4 rounded-4">
+    <div class="modal-content text-center p-4 rounded-4" style="background-color: var(--bg-card); border: 1px solid var(--border-color);">
       <div class="modal-body">
         <i class="fa-solid fa-spa text-success fa-3x mb-3"></i>
         <h4 class="fw-bold text-success mb-2">Waktunya Istirahat Sejenak! 🌿</h4>
         <p class="text-muted mb-4" id="pijat-mental-text">
-            Kamu sudah bekerja keras. Tarik napas dalam-dalam, minum air putih, dan regangkan ototmu selama 5 menit agar pikiran kembali segar.
+            Sesi 30 menit selesai! Tarik napas dalam-dalam, minum air putih, dan regangkan ototmu selama 5 menit agar pikiran kembali segar.
         </p>
         <button type="button" class="btn btn-success rounded-pill px-4 fw-bold" data-bs-dismiss="modal" onclick="resetTimerIstirahat()">
             Saya Sudah Istirahat
