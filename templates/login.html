@@ -2,31 +2,113 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - REMINDU</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <style>
+        body {
+            background-color: var(--bg-main, #0b0e14);
+            color: var(--text-main, #e2e8f0);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .login-card {
+            background-color: var(--bg-card, #151923);
+            border: 1px solid var(--border-color, #2a2f3a);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            max-width: 420px;
+            width: 100%;
+        }
+
+        .brand-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff2a85 0%, #8a2be2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-gradient {
+            background: linear-gradient(135deg, #ff2a85 0%, #8a2be2 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 12px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-gradient:hover {
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
+        }
+
+        .btn-outline-custom {
+            background: transparent;
+            color: #e2e8f0;
+            border: 1px solid var(--border-color, #2a2f3a);
+            border-radius: 12px;
+            padding: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-custom:hover {
+            background: #1f2533;
+            color: #fff;
+            border-color: #8a2be2;
+        }
+    </style>
 </head>
-<body class="d-flex align-items-center justify-content-center min-vh-100 bg-light">
-    <div class="login-box bg-white p-5 rounded-4 shadow-sm text-center" style="max-width: 400px; width: 100%;">
-        <h2 class="fw-bold mb-2">REMINDU.</h2>
-        <p class="text-muted mb-4">Masuk atau Daftar Akun Baru</p>
+<body class="d-flex align-items-center justify-content-center min-vh-100 p-3">
+
+    <div class="login-card p-4 p-sm-5 text-center">
+        <h2 class="brand-title mb-1">REMINDU <i class="fa-solid fa-bell fs-4 text-warning"></i></h2>
+        <p class="text-muted small mb-4">Mindful Task Prioritizer & Focus Guard</p>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             {% for category, message in messages %}
-              <div class="alert alert-{{ category }}">{{ message }}</div>
+              <div class="alert alert-danger mb-4" role="alert">
+                <i class="fa-solid fa-triangle-exclamation me-1"></i> {{ message }}
+              </div>
             {% endfor %}
           {% endif %}
         {% endwith %}
 
         <form method="POST" action="/login">
-            <input type="text" name="username" class="form-control mb-3 text-center" placeholder="Username" required>
-            <input type="password" name="password" class="form-control mb-4 text-center" placeholder="Password" required>
-            <div class="d-flex gap-2">
-                <button type="submit" name="action" value="login" class="btn btn-primary w-100 fw-bold">Masuk</button>
-                <button type="submit" name="action" value="register" class="btn btn-outline-primary w-100 fw-bold">Daftar</button>
+            <div class="mb-3 text-start">
+                <label class="form-label small ps-1">Username</label>
+                <input type="text" name="username" class="form-control text-center" placeholder="Masukkan Username" required autocomplete="off">
+            </div>
+
+            <div class="mb-4 text-start">
+                <label class="form-label small ps-1">Password</label>
+                <input type="password" name="password" class="form-control text-center" placeholder="Masukkan Password" required>
+            </div>
+
+            <div class="d-flex flex-column gap-2">
+                <button type="submit" name="action" value="login" class="btn btn-gradient w-100">
+                    <i class="fa-solid fa-right-to-bracket me-1"></i> Masuk
+                </button>
+                <button type="submit" name="action" value="register" class="btn btn-outline-custom w-100">
+                    <i class="fa-solid fa-user-plus me-1"></i> Daftar Akun Baru
+                </button>
             </div>
         </form>
+
+        <div class="mt-4 pt-3 border-top border-secondary border-opacity-25">
+            <small class="text-muted" style="font-size: 0.75rem;">
+                <i class="fa-solid fa-heart-pulse text-danger me-1"></i> Produktivitas Sehat Tanpa Stres
+            </small>
+        </div>
     </div>
+
 </body>
 </html>
