@@ -14,6 +14,8 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+# --- DATABASE MODELS ---
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
@@ -25,11 +27,16 @@ class Task(db.Model):
     deadline = db.Column(db.String(50), nullable=False)
     kategori = db.Column(db.String(20), nullable=False)   # 'kuliah' atau 'personal'
     kesulitan = db.Column(db.Float, nullable=False)       # 1=Mudah, 2=Sedang, 3=Sulit
+    repeat = db.Column(db.String(20), default='none')     # 'none', 'daily', 'weekly'
+    end_repeat = db.Column(db.String(50), nullable=True)  # Batas tanggal pengulangan
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+
+# --- ROUTES & AUTHENTICATION ---
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -42,6 +49,7 @@ def login():
             if User.query.filter_by(username=username).first():
                 flash('Username sudah terdaftar!', 'danger')
             else:
+                # Menggunakan method pbkdf2:sha256 default werkzeug terbaru
                 hashed_pw = generate_password_hash(password, method='pbkdf2:sha256')
                 new_user = User(username=username, password=hashed_pw)
                 db.session.add(new_user)
@@ -70,7 +78,9 @@ def logout():
 def index():
     return render_template('index.html', username=current_user.username)
 
-# API Endpoints
+
+# --- API ENDPOINTS ---
+
 @app.route('/api/tasks', methods=['GET'])
 @login_required
 def get_tasks():
@@ -80,7 +90,9 @@ def get_tasks():
         "mk": t.mk, 
         "deadline": t.deadline, 
         "kategori": t.kategori, 
-        "kesulitan": t.kesulitan
+        "kesulitan": t.kesulitan,
+        "repeat": t.repeat,
+        "end_repeat": t.end_repeat
     } for t in tasks])
 
 @app.route('/api/add_task', methods=['POST'])
@@ -91,7 +103,9 @@ def add_task():
         mk=data.get('mk'), 
         deadline=data.get('deadline'), 
         kategori=data.get('kategori', 'kuliah'), 
-        kesulitan=float(data.get('kesulitan', 1.0)), 
+        kesulitan=float(data.get('kesulitan', 1.0)),
+        repeat=data.get('repeat', 'none'),
+        end_repeat=data.get('end_repeat', None),
         user_id=current_user.id
     )
     db.session.add(new_task)
@@ -114,6 +128,7 @@ def clear_tasks():
     Task.query.filter_by(user_id=current_user.id).delete()
     db.session.commit()
     return jsonify({"success": True})
+
 
 if __name__ == '__main__':
     with app.app_context():
