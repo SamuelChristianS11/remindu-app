@@ -21,12 +21,12 @@ body {
 /* Fix Kontras Input Form & Login */
 .form-control, .form-select {
     background-color: #1f2533 !important;
-    color: #e5f7fc !important;
+    color: #ffffff !important;
     border: 1px solid var(--border-color) !important;
 }
 
 .form-control::placeholder {
-    color: #94a3b8 !important;
+    color: #cccccc !important;
     opacity: 1;
 }
 
@@ -111,6 +111,7 @@ body {
     gap: 8px;
 }
 
+/* REVISI: Tambahan interaksi kalender saat diklik / di-hover */
 .calendar-cell {
     background: #0f1219;
     border: 1px solid #2a2f3a;
@@ -120,11 +121,29 @@ body {
     display: flex;
     flex-direction: column;
     gap: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.calendar-cell:hover {
+    border-color: #ff2a85;
+    background: rgba(255, 42, 133, 0.05);
+}
+
+.calendar-cell.active-date {
+    border-color: #ff2a85;
+    background: rgba(255, 42, 133, 0.15);
+    box-shadow: inset 0 0 10px rgba(255, 42, 133, 0.2);
 }
 
 .calendar-cell.empty {
     background: rgba(15, 18, 25, 0.3);
     border: 1px dashed rgba(42, 47, 58, 0.4);
+    cursor: default;
+}
+.calendar-cell.empty:hover {
+    border-color: rgba(42, 47, 58, 0.4);
+    background: rgba(15, 18, 25, 0.3);
 }
 
 .date-number {
@@ -158,32 +177,97 @@ body {
 }
 .event-chip.kuliah { background: rgba(255, 71, 87, 0.2); color: #ff4757; border: 1px solid #ff4757; }
 .event-chip.personal { background: rgba(30, 144, 255, 0.2); color: #1e90ff; border: 1px solid #1e90ff; }
+
+/* REVISI: Modal Pop-up untuk Pemilihan Timer (Manual / Pomodoro) */
+.timer-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(11, 14, 20, 0.85);
+    backdrop-filter: blur(4px);
+    display: none; /* Dikelola oleh JS nanti */
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.timer-modal {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 24px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.timer-modal h5 { margin-bottom: 16px; color: #fff; }
+
+.timer-option-btn {
+    width: 100%;
+    margin-bottom: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: #1f2533;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.timer-option-btn span {
+    font-size: 0.75rem;
+    font-weight: normal;
+    color: var(--text-muted);
+}
+
+.timer-option-btn:hover { border-color: #ff2a85; background: rgba(255, 42, 133, 0.1); }
+.timer-option-btn.pomodoro { border-color: #ff4757; color: #ff4757; }
+.timer-option-btn.pomodoro:hover { background: rgba(255, 71, 87, 0.1); }
+
+/* REVISI: Desain Footer Remindu */
+.footer-container {
+    margin-top: 60px;
+    padding: 40px 20px 20px;
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+    background-color: transparent;
+}
+
+.footer-desc {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    max-width: 800px;
+    margin: 0 auto 20px auto;
+    line-height: 1.7;
+}
+
+.footer-copyright {
+    color: #64748b;
+    font-size: 0.8rem;
+}
+
 /* ================= PERBAIKAN WARNA TEKS HALAMAN UTAMA ================= */
-/* Membuat warna teks judul, label, dan teks umum menjadi putih */
 h4, h5, .form-label, p, .task-info h4 {
     color: #ffffff !important;
 }
 
-/* Mengatur warna teks di dalam input box saat diketik */
-.form-control, .form-select {
-    color: #ffffff !important; 
-    background-color: #1f2533 !important; /* Latar belakang input sedikit lebih terang dari background hitam */
-    border: 1px solid #2a2f3a !important;
-}
-
-/* Mengatur warna teks petunjuk (placeholder) di dalam input box menjadi abu-abu terang */
-.form-control::placeholder {
-    color: #cccccc !important; 
-    opacity: 1;
-}
-
-/* Warna judul "Daftar Prioritas Agenda" dan "Tambah Agenda Baru" */
 .fw-bold {
     color: #ffffff !important;
 }
+
 /* ================= PERBAIKAN WARNA TEKS STATISTIK ================= */
 .text-stat-label {
     color: #e2e8f0 !important;
     font-weight: 500;
     font-size: 0.95rem;
+}
+/* Memaksa semua teks redup (text-muted) menjadi abu-abu terang agar terbaca di dark mode */
+.text-muted {
+    color: #cbd5e1 !important;
 }
